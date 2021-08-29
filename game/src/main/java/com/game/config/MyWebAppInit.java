@@ -26,6 +26,6 @@ public class MyWebAppInit extends AbstractAnnotationConfigDispatcherServletIniti
     @Override
     protected String[] getServletMappings() {
         return new String[]{"/"};
-    }
+    } //все запросы пользователя отправляем на сервлет
 
 }

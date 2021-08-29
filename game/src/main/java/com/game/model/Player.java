@@ -9,7 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.Date;
 
-@Entity
+@Entity //сущность
 public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
