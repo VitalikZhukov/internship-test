@@ -2,26 +2,28 @@ package com.game.model;
 
 import com.game.entity.Profession;
 import com.game.entity.Race;
+import org.hibernate.annotations.BatchSize;
+import org.springframework.lang.NonNull;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
-@Entity //сущность
+@Entity
+@Table(name = "player")
 public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     private String name;
     private String title;
+    @Enumerated(EnumType.STRING)
     private Race race;
+    @Enumerated(EnumType.STRING)
     private Profession profession;
     private Integer experience;
     private Integer level;
     private Integer untilNextLevel;
+    @Temporal(TemporalType.DATE)
     private Date birthday;
     private Boolean banned;
 
@@ -112,4 +114,5 @@ public class Player {
     public void setBanned(Boolean banned) {
         this.banned = banned;
     }
+
 }
