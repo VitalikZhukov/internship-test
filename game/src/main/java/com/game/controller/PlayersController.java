@@ -39,10 +39,9 @@ public class PlayersController {
                                         @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
                                         @RequestParam(value = "pageSize", required = false) Integer pageSize) {
         List<Player> playerList = playerService.getPlayersList(name, title, race, profession, after, before, banned, minExperience, maxExperience, minLevel, maxLevel);
-
-        //add filter and return this
-
-        return null;
+        //добавляем фильтр
+        List<Player> filteredList = playerService.getFilteredList(playerList, order);
+        return playerService.getPageList(filteredList, pageNumber, pageSize);
     }
 
     //получать игрока по id;

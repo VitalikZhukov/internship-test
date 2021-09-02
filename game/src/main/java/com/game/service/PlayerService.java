@@ -1,28 +1,27 @@
 package com.game.service;
 
 import com.game.controller.PlayerOrder;
+import com.game.controller.ServiceHelper;
 import com.game.entity.Profession;
 import com.game.entity.Race;
 import com.game.model.Player;
 import com.game.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 // ----- 3. Создаем методы для реализации необходимых возможностей. ------
 
 @Service
-public class PlayerService {
-
-    private final PlayerRepository playerRepository;
+public class PlayerService extends ServiceHelper {
 
     @Autowired
+    private PlayerRepository playerRepository;
+
     public PlayerService(PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
     }
@@ -39,8 +38,8 @@ public class PlayerService {
         Date afterDate = after == null ? null : new Date(after);
         Date beforeDate = before == null ? null : new Date(before);
         playerRepository.findAll().forEach(player -> {
-            if (name != null && !player.getName().contains(name)) return;
-            if (title != null && !player.getTitle().contains(title)) return;
+            if (name != null && !player.getName().contains(name)) return; //поиск по полю name происходит по частичному соответствию
+            if (title != null && !player.getTitle().contains(title)) return; //поиск по полю title происходит по частичному соответствию
             if (race != null && (player.getRace() != race)) return;
             if (profession != null && player.getProfession() != profession) return;
             if (afterDate != null && player.getBirthday().before(afterDate)) return;
@@ -56,8 +55,20 @@ public class PlayerService {
     }
 
     //получать отфильтрованный список игроков в соответствии с переданными фильтрами;
-    public List<Player> getFilteredList(List<Player> playersList, PlayerOrder order, Integer pageNumber, Integer pageSize) {
-        return null;
+    public List<Player> getFilteredList(List<Player> playersList, PlayerOrder order) {
+        switch (order) {
+            case NAME:
+                playersList.sort(Comparator.comparing(Player::getName));
+            case LEVEL:
+                playersList.sort(Comparator.comparing(Player::getLevel));
+            case BIRTHDAY:
+                playersList.sort(Comparator.comparing(Player::getBirthday));
+            case EXPERIENCE:
+                playersList.sort(Comparator.comparing(Player::getExperience));
+            default:
+                playersList.sort(Comparator.comparing(Player::getId)); //если параметр order не указан, нужно использовать PlayerOrder.ID
+        }
+        return playersList;
     }
 
     //создавать нового игрока;

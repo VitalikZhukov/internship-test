@@ -29,14 +29,6 @@ public class Player {
     private Date birthday;
     private Boolean banned;
 
-    public void currentLevel() {
-        Integer currExp = ((int) Math.sqrt(2500 + 200 * experience) - 50) / 100;
-    }
-
-    public void expToTheNextLevel() {
-        Integer nextExpLvl = 50 * (level + 1) * (level + 2) - experience;
-    }
-
     public Long getId() {
         return id;
     }
