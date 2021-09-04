@@ -4,8 +4,6 @@ import com.game.entity.Profession;
 import com.game.entity.Race;
 import com.game.model.Player;
 import com.game.service.PlayerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,32 +44,43 @@ public class PlayersController {
 
     //получать игрока по id;
     @GetMapping("/{id}")
-    public String getPlayer(@PathVariable("id") Long id, Model model) {
-        return null;
+    public Player getPlayer(@PathVariable("id") String id) {
+        return playerService.getPlayer(id);
     }
 
     //получать количество игроков, которые соответствуют фильтрам;
     @GetMapping("/count")
-    public String getPlayersCount (Model model) {
-        return null;
+    public Integer getPlayersCount (@RequestParam(value = "name", required = false) String name,
+                                   @RequestParam(value = "title", required = false) String title,
+                                   @RequestParam(value = "race", required = false) Race race,
+                                   @RequestParam(value = "profession", required = false) Profession profession,
+                                   @RequestParam(value = "after", required = false) Long after,
+                                   @RequestParam(value = "before", required = false) Long before,
+                                   @RequestParam(value = "banned", required = false) Boolean banned,
+                                   @RequestParam(value = "minExperience", required = false) Integer minExperience,
+                                   @RequestParam(value = "maxExperience", required = false) Integer maxExperience,
+                                   @RequestParam(value = "minLevel", required = false) Integer minLevel,
+                                   @RequestParam(value = "maxLevel", required = false) Integer maxLevel) {
+        return playerService.getPlayersCount(name, title, race, profession, after, before, banned, minExperience, maxExperience, minLevel, maxLevel);
     }
 
     //создавать нового игрока;
     @PostMapping()
-    public String createPlayer (Model model) {
-        return null;
+    public Player createPlayer (@RequestBody Player player) {
+        return playerService.createPlayer(player);
     }
 
     //редактировать характеристики существующего игрока;
     @PostMapping("/{id}")
-    public String updatePlayer(@PathVariable("id") Long id, Model model) {
-        return null;
+    public Player updatePlayer(@PathVariable("id") String id, @RequestBody Player player) {
+        Player playerOld = playerService.getPlayer(id);
+        return playerService.updatePlayer(player, playerOld);
     }
 
     //удалять игрока;
     @DeleteMapping("/{id}")
-    public String deletePlayer(@PathVariable("id") Long id, Model model) {
-        return null;
+    public void deletePlayer(@PathVariable("id") String id) {
+        playerService.deletePlayer(id);
     }
 
 

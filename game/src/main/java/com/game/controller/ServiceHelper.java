@@ -1,6 +1,8 @@
 package com.game.controller;
 
 import com.game.model.Player;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -25,7 +27,7 @@ public class ServiceHelper {
     }
 
     protected boolean isValidName (String name) {
-        return name != null && name.length() <= 12;
+        return name != null && name.length() <= 12 && !name.isEmpty();
     }
 
     protected boolean isValidTitle (String title) {
@@ -38,6 +40,7 @@ public class ServiceHelper {
 
     protected boolean isValidDate (Date date) {
         if (date == null) return false;
+        if (date.getTime() < 0) return false;
         Calendar calendar = Calendar.getInstance();
         calendar.set(1999, Calendar.DECEMBER, 31);
         Date from = calendar.getTime();
@@ -52,6 +55,15 @@ public class ServiceHelper {
 
     public void expToTheNextLevel(Player player) {
         player.setUntilNextLevel(50 * (player.getLevel() + 1) * (player.getLevel() + 2) - player.getExperience());
+    }
+
+    public Long convertToLong (String idString) {
+        if (idString == null) return null;
+        try {
+            return Long.parseLong(idString);
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

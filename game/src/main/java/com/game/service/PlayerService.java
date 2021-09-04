@@ -7,7 +7,9 @@ import com.game.entity.Race;
 import com.game.model.Player;
 import com.game.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -59,41 +61,127 @@ public class PlayerService extends ServiceHelper {
         switch (order) {
             case NAME:
                 playersList.sort(Comparator.comparing(Player::getName));
+                break;
             case LEVEL:
                 playersList.sort(Comparator.comparing(Player::getLevel));
+                break;
             case BIRTHDAY:
                 playersList.sort(Comparator.comparing(Player::getBirthday));
+                break;
             case EXPERIENCE:
                 playersList.sort(Comparator.comparing(Player::getExperience));
+                break;
             default:
                 playersList.sort(Comparator.comparing(Player::getId)); //если параметр order не указан, нужно использовать PlayerOrder.ID
         }
         return playersList;
     }
 
+    //получать игрока по id;
+    public Player getPlayer(String idS) {
+        Long id = convertToLong(idS);
+        if (isValidID(id)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        if (playerRepository.existsById(id)) {
+            return playerRepository.findById(id).get();
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    //получать количество игроков, которые соответствуют фильтрам;
+    public Integer getPlayersCount(String name, String title, Race race, Profession profession, Long after,
+                                   Long before, Boolean banned, Integer minExperience, Integer maxExperience,
+                                   Integer minLevel, Integer maxLevel) {
+        return getPlayersList(name, title, race, profession, after, before, banned, minExperience, maxExperience, minLevel, maxLevel).size();
+    }
+
     //создавать нового игрока;
     public Player createPlayer(Player player) {
+        if (!isValidName(player.getName()) || !isValidTitle(player.getTitle()) || !isValidExp(player.getExperience()) ||
+        !isValidDate(player.getBirthday()) || player.getRace() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        if (player.isBanned() == null) player.setBanned(false); //если в запросе нет параметра banned, то считаем, что пришло значение false
 
-        return playerRepository.save(player);
+        //  ---  параметры даты между фронтом и сервером передаются в миллисекундах Long   ---
+        //                  УТОЧНИТЬ
+
+        currentLevel(player);
+        expToTheNextLevel(player);
+        playerRepository.save(player);
+        return player;
     }
 
     //редактировать характеристики существующего игрока;
-    public void updatePlayer(Long id) {
-        playerRepository.save(getPlayer(id));
+    public Player updatePlayer(Player playerNew, Player playerOld) {
+        if (!isValidID(playerOld.getId())) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (playerRepository.findById(playerOld.getId()).isPresent()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        String name = playerNew.getName();
+        if (isValidName(name)) {
+            playerOld.setName(name);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        String title = playerNew.getTitle();
+        if (isValidTitle(title)) {
+            playerOld.setTitle(title);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        Race race = playerNew.getRace();
+        if (race != null) {
+            playerOld.setRace(race);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        Profession profession = playerNew.getProfession();
+        if (profession != null) {
+            playerOld.setProfession(profession);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        //  ---  параметры даты между фронтом и сервером передаются в миллисекундах Long   ---
+        //                  УТОЧНИТЬ
+        Date birthday = playerNew.getBirthday();
+        if (birthday != null) {
+            playerOld.setBirthday(birthday);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        //если в запросе нет параметра banned, то считаем, что пришло значение false
+        //   ---   скорее всего не действует на этот пункт   ---
+        Boolean banned = playerNew.isBanned();
+        if (banned != null) {
+            playerOld.setBanned(banned);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        Integer exp = playerNew.getExperience();
+        if (exp != null) {
+            playerOld.setExperience(exp);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        currentLevel(playerOld);
+        expToTheNextLevel(playerOld);
+        playerRepository.save(playerOld);
+        return playerOld;
     }
 
     //удалять игрока по id;
-    public void deletePlayer(Long id) {
-        playerRepository.deleteById(id);
-    }
-
-    //получать игрока по id;
-    public Player getPlayer(Long id) {
-        return playerRepository.getOne(id);
-    }
-
-    //получать количество игроков, которые соответствуют фильтрам.
-    public long getPlayersCount() {
-        return 0;
+    public void deletePlayer(String idS) {
+        Long id = convertToLong(idS);
+        if (!playerRepository.findById(id).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        if (isValidID(id)) {
+            playerRepository.deleteById(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 }
