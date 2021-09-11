@@ -2,18 +2,16 @@ package com.game.controller;
 
 import com.game.entity.Profession;
 import com.game.entity.Race;
-import com.game.model.Player;
-import com.game.service.PlayerService;
+import com.game.entity.Player;
 import com.game.service.ServiceFilter;
 import com.game.service.ServiceHelper;
+import com.game.service.ServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -24,9 +22,9 @@ import java.util.List;
 public class PlayersController extends ServiceHelper {
 
     @Autowired
-    private PlayerService playerService;
+    private ServiceInterface playerService;
 
-    public PlayersController(PlayerService playerService) {
+    public PlayersController(ServiceInterface playerService) {
         this.playerService = playerService;
     }
 
@@ -66,11 +64,11 @@ public class PlayersController extends ServiceHelper {
     //получать игрока по id;
     @GetMapping("/{id}")
     public Player getPlayer(@PathVariable Long id) {
-        if (!isValidID(id)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (!isValidID(id)) throw new BadRequestException();
         try {
             return playerService.getPlayer(id);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new NotFoundException();
         }
     }
 
@@ -104,11 +102,13 @@ public class PlayersController extends ServiceHelper {
     //создавать нового игрока;
     @PostMapping()
     public Player createPlayer (@RequestBody Player player) {
-        if (!isValidID(player.getId()) || !isValidName(player.getName()) || !isValidTitle(player.getTitle()) ||
+        if (!isValidName(player.getName()) || !isValidTitle(player.getTitle()) ||
         !isValidExp(player.getExperience()) || !isValidDate(player.getBirthday())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (player.isBanned() == null) player.setBanned(false);
+        setCurrentLevel(player);
+        setExpToTheNextLevel(player);
         return playerService.createPlayer(player);
     }
 
@@ -118,7 +118,7 @@ public class PlayersController extends ServiceHelper {
         Player tempPlayer = getPlayer(id);
         if (!isValidName(player.getName()) || !isValidTitle(player.getTitle()) ||
                 !isValidExp(player.getExperience()) || !isValidDate(player.getBirthday())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (player.getName() == null) player.setName(tempPlayer.getName());
         if (player.getTitle() == null) player.setTitle(tempPlayer.getTitle());
@@ -135,11 +135,11 @@ public class PlayersController extends ServiceHelper {
     //удалять игрока;
     @DeleteMapping("/{id}")
     public void deletePlayer(@PathVariable Long id) {
-        if (!isValidID(id)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (!isValidID(id)) throw new BadRequestException();
         try {
             playerService.deletePlayer(id);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new NotFoundException();
         }
     }
 }

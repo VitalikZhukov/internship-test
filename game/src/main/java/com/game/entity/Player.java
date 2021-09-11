@@ -1,9 +1,4 @@
-package com.game.model;
-
-import com.game.entity.Profession;
-import com.game.entity.Race;
-import org.hibernate.annotations.BatchSize;
-import org.springframework.lang.NonNull;
+package com.game.entity;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -13,22 +8,19 @@ import java.util.Date;
 @Entity
 @Table(name = "player")
 public class Player {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
     private String title;
-    @Enumerated(EnumType.STRING)
     private Race race;
-    @Enumerated(EnumType.STRING)
     private Profession profession;
     private Integer experience;
     private Integer level;
     private Integer untilNextLevel;
-    @Temporal(TemporalType.DATE)
     private Date birthday;
     private Boolean banned;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
@@ -53,6 +45,7 @@ public class Player {
         this.title = title;
     }
 
+    @Enumerated(EnumType.STRING)
     public Race getRace() {
         return race;
     }
@@ -61,6 +54,7 @@ public class Player {
         this.race = race;
     }
 
+    @Enumerated(EnumType.STRING)
     public Profession getProfession() {
         return profession;
     }
@@ -108,5 +102,4 @@ public class Player {
     public void setBanned(Boolean banned) {
         this.banned = banned;
     }
-
 }

@@ -2,7 +2,7 @@ package com.game.service;
 
 import com.game.entity.Profession;
 import com.game.entity.Race;
-import com.game.model.Player;
+import com.game.entity.Player;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -38,7 +38,7 @@ public class ServiceFilter {
         return new Specification<Player>() {
             @Override
             public Predicate toPredicate(Root<Player> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                return race == null ? null : criteriaBuilder.equal(root.get("race"), "%" + race + "%");
+                return race == null ? null : criteriaBuilder.equal(root.get("race"), race);
             }
         };
     }
@@ -48,7 +48,7 @@ public class ServiceFilter {
         return new Specification<Player>() {
             @Override
             public Predicate toPredicate(Root<Player> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                return profession == null ? null : criteriaBuilder.equal(root.get("profession"), "%" + profession + "%");
+                return profession == null ? null : criteriaBuilder.equal(root.get("profession"), profession);
             }
         };
     }

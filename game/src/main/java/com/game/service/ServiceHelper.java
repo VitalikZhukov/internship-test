@@ -1,12 +1,9 @@
 package com.game.service;
 
-import com.game.model.Player;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import com.game.entity.Player;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class ServiceHelper {
 
