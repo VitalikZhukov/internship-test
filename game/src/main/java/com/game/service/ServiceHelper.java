@@ -8,28 +8,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-// ---   4. Реализация функционала   ---
-
 public class ServiceHelper {
 
-    
-
-
-
-    public List<Player> getPageList (List<Player> playersList, Integer pageNumber, Integer pageSize) {
-        //количество страниц
-        if (pageNumber == null) pageNumber = 0; //если параметр pageNumber не указан, нужно использовать 0
-        //количество результатов на странице
-        if (pageSize == null) pageSize = 3;     //если параметр pageSize не указан, нужно использовать 3
-
-        int from = pageNumber * pageSize;
-        int to = from + pageSize;
-        if (to > from) to = playersList.size();
-
-        return playersList.subList(from, to);
-    }
-
-    public boolean isValidID (long id) {
+    public boolean isValidID (Long id) {
         return id > 0;
     }
 
@@ -56,27 +37,12 @@ public class ServiceHelper {
         return date.after(from) && date.before(to);
     }
 
-    public void currentLevel(Player player) {
+    public void setCurrentLevel(Player player) {
         player.setLevel(((int) (Math.sqrt(2500 + 200 * player.getExperience()) - 50) / 100));
     }
 
-    public void expToTheNextLevel(Player player) {
+    public void setExpToTheNextLevel(Player player) {
         player.setUntilNextLevel(50 * (player.getLevel() + 1) * (player.getLevel() + 2) - player.getExperience());
     }
 
-    public Long convertToLong (String idString) {
-        if (idString == null) return null;
-        try {
-            return Long.parseLong(idString);
-        } catch (NumberFormatException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-    }
-
 }
-
-
-
-    /*String name, String title, Race race, Profession profession, Long after,
-    Long before, Boolean banned, Integer minExperience, Integer maxExperience,
-    Integer minLevel, Integer maxLevel*/

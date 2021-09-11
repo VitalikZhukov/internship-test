@@ -31,7 +31,7 @@ public class PlayerService {
         return playerRepository.findAll();
     }
 
-    //получать игроков на странице;
+    //получать игроков по фильтру, отображение в соответствии с pageable;
     public Page<Player> getFilteredList(Specification specification, Pageable pageable) {
         return playerRepository.findAll(specification, pageable);
     }
