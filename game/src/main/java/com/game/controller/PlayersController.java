@@ -4,15 +4,24 @@ import com.game.entity.Profession;
 import com.game.entity.Race;
 import com.game.model.Player;
 import com.game.service.PlayerService;
+import com.game.service.ServiceFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+// ---   5. Реализация контроллера   ---
 
 @RestController
 @RequestMapping("/rest/players")
 public class PlayersController {
 
-    private final PlayerService playerService;
+    @Autowired
+    private PlayerService playerService;
 
     public PlayersController(PlayerService playerService) {
         this.playerService = playerService;
@@ -33,13 +42,23 @@ public class PlayersController {
                                         @RequestParam(value = "maxExperience", required = false) Integer maxExperience,
                                         @RequestParam(value = "minLevel", required = false) Integer minLevel,
                                         @RequestParam(value = "maxLevel", required = false) Integer maxLevel,
-                                        @RequestParam(value = "order", required = false) PlayerOrder order,
-                                        @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
-                                        @RequestParam(value = "pageSize", required = false) Integer pageSize) {
-        List<Player> playerList = playerService.getPlayersList(name, title, race, profession, after, before, banned, minExperience, maxExperience, minLevel, maxLevel);
-        //добавляем фильтр
-        List<Player> filteredList = playerService.getFilteredList(playerList, order);
-        return playerService.getPageList(filteredList, pageNumber, pageSize);
+                                        @RequestParam(value = "order", required = false, defaultValue = "ID") PlayerOrder order,
+                                        @RequestParam(value = "pageNumber", required = false, defaultValue = "0") Integer pageNumber,
+                                        @RequestParam(value = "pageSize", required = false, defaultValue = "3") Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(order.getFieldName()));
+        List<Player> playerList = playerService.getFilteredList(Specification.where
+                        (ServiceFilter.filterByName(name).and
+                        (ServiceFilter.filterByTitle(title)).and
+                        (ServiceFilter.filterByRace(race)).and
+                        (ServiceFilter.filterByProfession(profession)).and
+                        (ServiceFilter.filterByBirthdayMoreThan(after)).and
+                        (ServiceFilter.filterByBirthdayLessThan(before)).and
+                        (ServiceFilter.filterByExpMoreThan(minExperience)).and
+                        (ServiceFilter.filterByExpLessThan(maxExperience)).and
+                        (ServiceFilter.filterByLevelMoreThan(minLevel)).and
+                        (ServiceFilter.filterByLevelLessThan(maxLevel)).and
+                        (ServiceFilter.filterIsBanned(banned))), pageable).getContent();
+        return playerList;
     }
 
     //получать игрока по id;

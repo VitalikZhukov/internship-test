@@ -1,4 +1,4 @@
-package com.game.controller;
+package com.game.service;
 
 import com.game.model.Player;
 import org.springframework.http.HttpStatus;
@@ -8,8 +8,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+// ---   4. Реализация функционала   ---
+
 public class ServiceHelper {
-    protected List<Player> getPageList (List<Player> playersList, Integer pageNumber, Integer pageSize) {
+
+    
+
+
+
+    public List<Player> getPageList (List<Player> playersList, Integer pageNumber, Integer pageSize) {
         //количество страниц
         if (pageNumber == null) pageNumber = 0; //если параметр pageNumber не указан, нужно использовать 0
         //количество результатов на странице
@@ -22,23 +29,23 @@ public class ServiceHelper {
         return playersList.subList(from, to);
     }
 
-    protected boolean isValidID (long id) {
+    public boolean isValidID (long id) {
         return id > 0;
     }
 
-    protected boolean isValidName (String name) {
+    public boolean isValidName (String name) {
         return name != null && name.length() <= 12 && !name.isEmpty();
     }
 
-    protected boolean isValidTitle (String title) {
+    public boolean isValidTitle (String title) {
         return title != null && title.length() <= 30;
     }
 
-    protected boolean isValidExp (int exp) {
+    public boolean isValidExp (int exp) {
         return exp >= 0 && exp <= 10_000_000;
     }
 
-    protected boolean isValidDate (Date date) {
+    public boolean isValidDate (Date date) {
         if (date == null) return false;
         if (date.getTime() < 0) return false;
         Calendar calendar = Calendar.getInstance();
@@ -67,3 +74,9 @@ public class ServiceHelper {
     }
 
 }
+
+
+
+    /*String name, String title, Race race, Profession profession, Long after,
+    Long before, Boolean banned, Integer minExperience, Integer maxExperience,
+    Integer minLevel, Integer maxLevel*/
