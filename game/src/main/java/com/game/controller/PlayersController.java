@@ -116,10 +116,8 @@ public class PlayersController extends ServiceHelper {
     @PostMapping("/{id}")
     public Player updatePlayer(@PathVariable Long id, @RequestBody Player player) {
         Player tempPlayer = getPlayer(id);
-        if (!isValidName(player.getName()) || !isValidTitle(player.getTitle()) ||
-                !isValidExp(player.getExperience()) || !isValidDate(player.getBirthday())) {
-            throw new BadRequestException();
-        }
+
+        player.setId(id);
         if (player.getName() == null) player.setName(tempPlayer.getName());
         if (player.getTitle() == null) player.setTitle(tempPlayer.getTitle());
         if (player.getRace() == null) player.setRace(tempPlayer.getRace());
@@ -127,6 +125,12 @@ public class PlayersController extends ServiceHelper {
         if (player.getExperience() == null) player.setExperience(tempPlayer.getExperience());
         if (player.isBanned() == null) player.setBanned(tempPlayer.isBanned());
         if (player.getBirthday() == null) player.setBirthday(tempPlayer.getBirthday());
+
+        if (!isValidName(player.getName()) || !isValidTitle(player.getTitle()) ||
+                !isValidExp(player.getExperience()) || !isValidDate(player.getBirthday())) {
+            throw new BadRequestException();
+        }
+
         setCurrentLevel(player);
         setExpToTheNextLevel(player);
         return playerService.updatePlayer(player);
